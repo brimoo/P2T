@@ -19,11 +19,11 @@ public class User {
     @ColumnInfo(name = "root_directory_id")
     private int rootDirectoryID;
 
-    public int getUID() {
+    public int getUid() {
         return uid;
     }
 
-    public void setUID(int uid) {
+    public void setUid(int uid) {
         this.uid = uid;
     }
 
@@ -42,4 +42,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getRootDirectoryID() {return rootDirectoryID;}
+    public void setRootDirectoryID(int rootDirectoryID) {this.rootDirectoryID = rootDirectoryID;}
 }
