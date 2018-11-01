@@ -99,10 +99,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
-        if(requestCode == 200)
-        {
-            if(grantResults[0] != PackageManager.PERMISSION_GRANTED)
-            {
+        if(requestCode == 200) {
+            if(grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Please grant permissions to use camera!", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -152,9 +150,11 @@ public class MainActivity extends AppCompatActivity {
             Surface surface = new Surface(texture);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
-            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
+            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback()
+            {
                 @Override
-                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession)
+                {
                     if(cameraDevice == null)
                         return;
                     captureSession = cameraCaptureSession;
@@ -162,7 +162,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
+                {
                     Toast.makeText(MainActivity.this, "Changed", Toast.LENGTH_SHORT).show();
                 }
             },null);
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         if(cameraDevice == null)
             Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE,CaptureRequest.CONTROL_MODE_AUTO);
-        try{
+        try {
             captureSession.setRepeatingRequest(captureRequestBuilder.build(),null,null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
