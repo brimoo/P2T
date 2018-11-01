@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private CameraCaptureSession captureSession;
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimensions;
-    private Handler repeatedRequestHandler;
 
     CameraDevice.StateCallback camStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -178,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE,CaptureRequest.CONTROL_MODE_AUTO);
         try{
-            captureSession.setRepeatingRequest(captureRequestBuilder.build(),null,repeatedRequestHandler);
+            captureSession.setRepeatingRequest(captureRequestBuilder.build(),null,null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
