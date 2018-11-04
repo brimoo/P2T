@@ -48,9 +48,7 @@ public class MainActivity extends AppCompatActivity {
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 // Save the URI so that it can be converted later
-                photoURI = FileProvider.getUriForFile(this,
-                        "com.p2t.p2t",
-                        photoFile);
+                photoURI = FileProvider.getUriForFile(this, "com.p2t.p2t", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
