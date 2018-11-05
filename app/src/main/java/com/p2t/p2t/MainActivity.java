@@ -1,5 +1,8 @@
 package com.p2t.p2t;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.graphics.Picture;
 import android.support.v7.app.AppCompatActivity;
 import java.io.IOException;
 import java.util.Date;
@@ -13,11 +16,14 @@ import android.provider.MediaStore;
 import android.net.Uri;
 import android.widget.Button;
 import android.view.View;
+
+import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.api.services.vision.v1.model.Image;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_CODE_PICK_ACCOUNT = 101;
     private Uri photoURI;
 
     private File createImageFile() throws IOException {
@@ -70,11 +76,25 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        PictureHandler p = new PictureHandler();
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                Toast.makeText(this, "It's probably working!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, p.getText(), Toast.LENGTH_SHORT).show();
+            }
+        }else if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
+            if (resultCode == RESULT_OK) {
+                String email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                AccountManager am = AccountManager.get(this);
+                Account[] accounts = am.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+                for (Account account : accounts) {
+                    if (account.name.equals(email)) {
+                        p.setAccount(account);
+                        break;
+                    }
+                }
+                p.getToken();
             }
         }
     }
