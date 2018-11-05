@@ -31,4 +31,9 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
+
+    //google vision api
+    compile 'com.google.api-client:google-api-client-android:1.22.0'
+    compile 'com.google.apis:google-api-services-vision:v1-rev357-1.22.0'
+    compile 'com.google.code.findbugs:jsr305:2.0.1'
 }
