@@ -76,25 +76,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        PictureHandler p = new PictureHandler();
+//        PictureHandler p = new PictureHandler();
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                Toast.makeText(this, p.getText(), Toast.LENGTH_SHORT).show();
-            }
-        }else if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
-            if (resultCode == RESULT_OK) {
-                String email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                AccountManager am = AccountManager.get(this);
-                Account[] accounts = am.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-                for (Account account : accounts) {
-                    if (account.name.equals(email)) {
-                        p.setAccount(account);
-                        break;
-                    }
-                }
-                p.getToken();
+                Toast.makeText(this, "working woo", Toast.LENGTH_SHORT).show();
             }
         }
     }
