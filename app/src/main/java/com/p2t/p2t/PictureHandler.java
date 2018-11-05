@@ -1,6 +1,8 @@
 package com.p2t.p2t;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,7 +19,6 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,12 +29,12 @@ import java.util.Locale;
 public class PictureHandler implements Runnable {
     private String result;
     private Image image;
-    public PictureHandler(Image image) { this.image = image; }
+    public PictureHandler(Image image) { this.image = image; result = "NotRun";}
 
     @Override
     public void run()
     {
-        result = getDetectedTexts(image);
+        getRequest(image);
     }
 
     public String getResult()
@@ -41,33 +42,45 @@ public class PictureHandler implements Runnable {
         return result;
     }
 
-    private BatchAnnotateImagesResponse getRequest(Image image)
-    {
-        try {
+    @SuppressLint("StaticFieldLeak")
+    private void getRequest(final Image image) {
+        new AsyncTask<Object, Void, BatchAnnotateImagesResponse>() {
+            @Override
+            protected BatchAnnotateImagesResponse doInBackground(Object... params) {
+                try
 
-            HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
-            Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
-            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("AIzaSyD3jdGVzdjVsS5HfAYws_9XOQ8Zq-E7lHk"));
-            Vision vision = visionBuilder.build();
-            Feature feature = new Feature();
-            feature.setType("DOCUMENT_TEXT_DETECTION");
-            AnnotateImageRequest request = new AnnotateImageRequest();
-            request.setImage(image);
-            request.setFeatures(Collections.singletonList(feature));
-            BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
-            batchRequest.setRequests(Collections.singletonList(request));
-            final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
-            annotateRequest.setDisableGZipContent(true);
-            BatchAnnotateImagesResponse r = annotateRequest.execute();
+                {
 
-            return r;
-        }
-        catch(IOException e){}
-        return null;
+                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+                    Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
+                    visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("AIzaSyD3jdGVzdjVsS5HfAYws_9XOQ8Zq-E7lHk"));
+                    Vision vision = visionBuilder.build();
+                    Feature feature = new Feature();
+                    feature.setType("DOCUMENT_TEXT_DETECTION");
+                    AnnotateImageRequest request = new AnnotateImageRequest();
+                    request.setImage(image);
+                    request.setFeatures(Collections.singletonList(feature));
+                    BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
+                    batchRequest.setRequests(Collections.singletonList(request));
+                    final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
+                    annotateRequest.setDisableGZipContent(true);
+                    BatchAnnotateImagesResponse r = annotateRequest.execute();
+
+                    return r;
+                } catch (IOException e) {
+                }
+                return null;
+            }
+                protected void onPostExecute(BatchAnnotateImagesResponse response)
+                {
+                    result = getText(response);
+
+                }
+
+        }.execute();
     }
 
-    private String getDetectedTexts(Image image){
-        BatchAnnotateImagesResponse response = getRequest(image);
+    private String getText(BatchAnnotateImagesResponse response){
         String str = "";
         if(response == null)
         {

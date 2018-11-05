@@ -80,8 +80,14 @@ public class MainActivity extends AppCompatActivity {
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
                 PictureHandler ph = new PictureHandler(convertedImage);
-                new Thread(ph).start();
+//                new Thread(ph).start();
+                ph.run();
+                Toast.makeText(this, "Running API Calls", Toast.LENGTH_LONG).show();
                 String test = ph.getResult();
+                while(test.equals("NotRun"))
+                {
+                    test = ph.getResult();
+                }
                 Toast.makeText(this, test, Toast.LENGTH_LONG).show();
             }
         }
