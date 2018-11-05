@@ -75,14 +75,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        PictureHandler p = new PictureHandler();
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                new PictureHandler();
-                String test = PictureHandler.getDetectedTexts(convertedImage);
-                Toast.makeText(this, test, Toast.LENGTH_SHORT).show();
+                PictureHandler ph = new PictureHandler(convertedImage);
+                new Thread(ph).start();
+                String test = ph.getResult();
+                Toast.makeText(this, test, Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -1,5 +1,9 @@
 package com.p2t.p2t;
 
+import android.app.Activity;
+import android.util.Log;
+import android.widget.Toast;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpTransport;
@@ -12,6 +16,8 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,33 +25,48 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class PictureHandler {
-    public PictureHandler() {}
+public class PictureHandler implements Runnable {
+    private String result;
+    private Image image;
+    public PictureHandler(Image image) { this.image = image; }
 
-    private static BatchAnnotateImagesResponse getRequest(Image image)
+    @Override
+    public void run()
+    {
+        result = getDetectedTexts(image);
+    }
+
+    public String getResult()
+    {
+        return result;
+    }
+
+    private BatchAnnotateImagesResponse getRequest(Image image)
     {
         try {
+
             HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
             Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
-            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("API GOES HERE"));
+            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("AIzaSyD3jdGVzdjVsS5HfAYws_9XOQ8Zq-E7lHk"));
             Vision vision = visionBuilder.build();
             Feature feature = new Feature();
-            feature.setType("TEXT_DETECTION");
+            feature.setType("DOCUMENT_TEXT_DETECTION");
             AnnotateImageRequest request = new AnnotateImageRequest();
             request.setImage(image);
             request.setFeatures(Collections.singletonList(feature));
             BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
             batchRequest.setRequests(Collections.singletonList(request));
-            Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
+            final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
             annotateRequest.setDisableGZipContent(true);
             BatchAnnotateImagesResponse r = annotateRequest.execute();
+
             return r;
         }
         catch(IOException e){}
         return null;
     }
 
-    public static String getDetectedTexts(Image image){
+    private String getDetectedTexts(Image image){
         BatchAnnotateImagesResponse response = getRequest(image);
         String str = "";
         if(response == null)
