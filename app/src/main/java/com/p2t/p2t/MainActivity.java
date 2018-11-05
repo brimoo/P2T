@@ -17,7 +17,6 @@ import android.net.Uri;
 import android.widget.Button;
 import android.view.View;
 
-import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.api.services.vision.v1.model.Image;
 import android.widget.Toast;
 
@@ -81,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                Toast.makeText(this, "working woo", Toast.LENGTH_SHORT).show();
+                new PictureHandler();
+                String test = PictureHandler.getDetectedTexts(convertedImage);
+                Toast.makeText(this, test, Toast.LENGTH_SHORT).show();
             }
         }
     }
