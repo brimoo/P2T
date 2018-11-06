@@ -29,12 +29,12 @@ import java.util.Locale;
 public class PictureHandler implements Runnable {
     private String result;
     private Image image;
-    public PictureHandler(Image image) { this.image = image; result = "NotRun";}
+    public PictureHandler(Image image) { this.image = image;}
 
     @Override
     public void run()
     {
-        getRequest(image);
+        result = getText(image);
     }
 
     public String getResult()
@@ -42,45 +42,34 @@ public class PictureHandler implements Runnable {
         return result;
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void getRequest(final Image image) {
-        new AsyncTask<Object, Void, BatchAnnotateImagesResponse>() {
-            @Override
-            protected BatchAnnotateImagesResponse doInBackground(Object... params) {
-                try
+    private BatchAnnotateImagesResponse getRequest(Image image) {
+        try
 
-                {
+        {
 
-                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
-                    Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
-                    visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("AIzaSyD3jdGVzdjVsS5HfAYws_9XOQ8Zq-E7lHk"));
-                    Vision vision = visionBuilder.build();
-                    Feature feature = new Feature();
-                    feature.setType("DOCUMENT_TEXT_DETECTION");
-                    AnnotateImageRequest request = new AnnotateImageRequest();
-                    request.setImage(image);
-                    request.setFeatures(Collections.singletonList(feature));
-                    BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
-                    batchRequest.setRequests(Collections.singletonList(request));
-                    final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
-                    annotateRequest.setDisableGZipContent(true);
-                    BatchAnnotateImagesResponse r = annotateRequest.execute();
+            HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+            Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
+            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("PUT_KEY_HERE"));
+            Vision vision = visionBuilder.build();
+            Feature feature = new Feature();
+            feature.setType("TEXT_DETECTION");
+            AnnotateImageRequest request = new AnnotateImageRequest();
+            request.setImage(image);
+            request.setFeatures(Collections.singletonList(feature));
+            BatchAnnotateImagesRequest batchRequest = new BatchAnnotateImagesRequest();
+            batchRequest.setRequests(Collections.singletonList(request));
+            final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
+            annotateRequest.setDisableGZipContent(true);
+            BatchAnnotateImagesResponse r = annotateRequest.execute();
 
-                    return r;
-                } catch (IOException e) {
-                }
-                return null;
-            }
-                protected void onPostExecute(BatchAnnotateImagesResponse response)
-                {
-                    result = getText(response);
-
-                }
-
-        }.execute();
+            return r;
+        } catch (IOException e) {
+        }
+        return null;
     }
 
-    private String getText(BatchAnnotateImagesResponse response){
+    private String getText(Image image){
+        BatchAnnotateImagesResponse response = getRequest(image);
         String str = "";
         if(response == null)
         {
@@ -90,6 +79,10 @@ public class PictureHandler implements Runnable {
         List<EntityAnnotation> texts = response.getResponses().get(0).getTextAnnotations();
         if (texts != null) {
             for (EntityAnnotation text : texts) {
+                if((String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription())).contains("null"))
+                {
+                    continue;
+                }
                 str = str + (String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription()));
                 str = str + " ";
             }

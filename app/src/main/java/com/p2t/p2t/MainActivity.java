@@ -79,42 +79,18 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
     @Override
-    @SuppressLint("StaticFieldLeak")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                final PictureHandler ph = new PictureHandler(convertedImage);
-//                new Thread(ph).start();
-                ph.run();
-                Toast.makeText(this, "Running API Calls", Toast.LENGTH_LONG).show();
-                String test = ph.getResult();
-
-                new AsyncTask<Void, Void, String>() {
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        try {
-                            String temp = ph.getResult();
-                            int timer = 0;
-                            while(temp.equals("NotRun")) {
-                                temp = ph.getResult();
-                                Thread.sleep(50);
-                                if(timer>50)
-                                    return "Not Run";
-                                timer++;
-
-                            }
-                            return temp;
-                        }
-                        catch(InterruptedException e){}
-                        return null;
-                    }
-                    protected void onPostExecute(String response)
-                    {
-                        Test(response);
-                    }
-                }.execute();
+                PictureHandler ph = new PictureHandler(convertedImage);
+                Thread phThread = new Thread(ph);
+                phThread.start();
+                try {
+                    phThread.join();
+                } catch(InterruptedException e) {}
+                String result = ph.getResult();
                 //i dunno whats gonna pop up for the GUI here, so if we have to load something else add that
             }
         }
