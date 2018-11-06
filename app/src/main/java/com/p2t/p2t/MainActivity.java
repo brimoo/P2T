@@ -2,7 +2,9 @@ package com.p2t.p2t;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.annotation.SuppressLint;
 import android.graphics.Picture;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import java.io.IOException;
 import java.util.Date;
@@ -17,12 +19,12 @@ import android.net.Uri;
 import android.widget.Button;
 import android.view.View;
 
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.Image;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_CODE_PICK_ACCOUNT = 101;
     private Uri photoURI;
 
     private File createImageFile() throws IOException {
@@ -72,23 +74,48 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    protected void Test(String s)
+    {
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+    }
     @Override
+    @SuppressLint("StaticFieldLeak")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
             if(convertedImage != null) {
-                PictureHandler ph = new PictureHandler(convertedImage);
+                final PictureHandler ph = new PictureHandler(convertedImage);
 //                new Thread(ph).start();
                 ph.run();
                 Toast.makeText(this, "Running API Calls", Toast.LENGTH_LONG).show();
                 String test = ph.getResult();
-                while(test.equals("NotRun"))
-                {
-                    test = ph.getResult();
-                }
-                Toast.makeText(this, test, Toast.LENGTH_LONG).show();
+
+                new AsyncTask<Void, Void, String>() {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        try {
+                            String temp = ph.getResult();
+                            int timer = 0;
+                            while(temp.equals("NotRun")) {
+                                temp = ph.getResult();
+                                Thread.sleep(50);
+                                if(timer>50)
+                                    return "Not Run";
+                                timer++;
+
+                            }
+                            return temp;
+                        }
+                        catch(InterruptedException e){}
+                        return null;
+                    }
+                    protected void onPostExecute(String response)
+                    {
+                        Test(response);
+                    }
+                }.execute();
+                //i dunno whats gonna pop up for the GUI here, so if we have to load something else add that
             }
         }
     }
