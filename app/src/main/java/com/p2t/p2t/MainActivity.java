@@ -26,7 +26,6 @@ import android.widget.Toast;
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_MESSAGE = "com.p2t.p2t.MESSAGE";
     static final int REQUEST_TAKE_PHOTO = 1;
     private Uri photoURI;
     private File photoFile;
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchToTextEdit(String message) {
         Intent intent = new Intent(this, TextEditorActivity.class);
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent, this);
+        DataHolder.setData(message);
+        startActivity(intent);
     }
 }
