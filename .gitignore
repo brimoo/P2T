@@ -65,3 +65,6 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+# Picture Handler Ignore
+app/src/main/java/com/p2t/p2t/PictureHandler.java
