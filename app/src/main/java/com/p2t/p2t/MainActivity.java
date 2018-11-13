@@ -23,9 +23,13 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.Image;
 import android.widget.Toast;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_MESSAGE = "com.p2t.p2t.MESSAGE";
     static final int REQUEST_TAKE_PHOTO = 1;
     private Uri photoURI;
+    private File photoFile;
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -46,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
+            photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
@@ -74,16 +78,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    protected void Test(String s)
-    {
-        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
-    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             // Now we can get the base64 image and pass it to the API
             Image convertedImage = ImageConverter.getBase64Image(getContentResolver(), photoURI);
+            // Clean up photo file
+            photoFile.delete();
             if(convertedImage != null) {
+                // If we have a successfully converted image, extract the text on its own thread
                 PictureHandler ph = new PictureHandler(convertedImage);
                 Thread phThread = new Thread(ph);
                 phThread.start();
@@ -91,8 +95,15 @@ public class MainActivity extends AppCompatActivity {
                     phThread.join();
                 } catch(InterruptedException e) {}
                 String result = ph.getResult();
-                //i dunno whats gonna pop up for the GUI here, so if we have to load something else add that
+                // Change to the text editor activity and pass the message
+                switchToTextEdit(result);
             }
         }
+    }
+
+    private void switchToTextEdit(String message) {
+        Intent intent = new Intent(this, TextEditorActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
     }
 }
