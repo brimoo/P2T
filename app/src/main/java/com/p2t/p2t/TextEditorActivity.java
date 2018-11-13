@@ -9,11 +9,11 @@ import android.widget.EditText;
 public class TextEditorActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState, AppCompatActivity act) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_editor);
 
-        String message = getIntent().getStringExtra(MainActivity.EXTRA_MESSAGE);
+        String message = getIntent().getStringExtra((act).EXTRA_MESSAGE);
         setText(message);
     }
 

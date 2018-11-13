@@ -104,6 +104,6 @@ public class MainActivity extends AppCompatActivity {
     private void switchToTextEdit(String message) {
         Intent intent = new Intent(this, TextEditorActivity.class);
         intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        startActivity(intent, this);
     }
 }
