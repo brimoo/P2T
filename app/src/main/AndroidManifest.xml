@@ -36,6 +36,7 @@
         </provider>
 
         <activity android:name=".TextEditorActivity"></activity>
+        <activity android:name=".FileBrowserActivity" />
     </application>
 
 </manifest>

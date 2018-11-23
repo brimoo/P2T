@@ -60,10 +60,10 @@ public class PictureHandler implements Runnable {
             batchRequest.setRequests(Collections.singletonList(request));
             final Vision.Images.Annotate annotateRequest = vision.images().annotate(batchRequest);
             annotateRequest.setDisableGZipContent(true);
-            BatchAnnotateImagesResponse r = annotateRequest.execute();
 
-            return r;
+            return annotateRequest.execute();
         } catch (IOException e) {
+            Log.println(Log.ERROR, "PictureHandler", e.toString());
         }
         return null;
     }

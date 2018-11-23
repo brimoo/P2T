@@ -12,10 +12,13 @@ import android.os.Bundle;
 import java.text.SimpleDateFormat;
 import android.os.Environment;
 import java.io.File;
+import java.util.Locale;
+
 import android.content.Intent;
 import android.support.v4.content.FileProvider;
 import android.provider.MediaStore;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Button;
 import android.view.View;
 
@@ -32,16 +35,15 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
+
+        return File.createTempFile(
                 imageFileName,
                 ".jpg",
                 storageDir
         );
-
-        return image;
     }
 
     private void dispatchTakePictureIntent() {
@@ -92,7 +94,9 @@ public class MainActivity extends AppCompatActivity {
                 phThread.start();
                 try {
                     phThread.join();
-                } catch(InterruptedException e) {}
+                } catch(InterruptedException e) {
+                    Log.println(Log.ERROR, "Main", e.toString());
+                }
                 String result = ph.getResult();
                 // Change to the text editor activity and pass the message
                 switchToTextEdit(result);
@@ -102,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchToTextEdit(String message) {
         Intent intent = new Intent(this, TextEditorActivity.class);
-        DataHolder.setData(message);
+        intent.putExtra("text", message);
         startActivity(intent);
     }
 }
