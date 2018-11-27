@@ -3,8 +3,10 @@ package com.p2t.p2t;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.graphics.Picture;
 import android.os.AsyncTask;
+import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import java.io.IOException;
 import java.util.Date;
@@ -30,6 +32,7 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int REQUEST_SPEECH = 2;
     private Uri photoURI;
     private File photoFile;
 
@@ -67,15 +70,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void dispatchRecordSpeechIntent()
+    {
+        Intent takeRecordingIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        takeRecordingIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        try
+        {
+            startActivityForResult(takeRecordingIntent,REQUEST_SPEECH);
+        }
+        catch(ActivityNotFoundException e)//if the phone doesnt support the built-in text-to-speech function
+        {}
+    }
+
+    private String getStringFromRecordingIntent(Intent intent)
+    {
+        String output = "";
+        for(String s : intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS))
+        {
+            output = output + s + " ";
+        }
+        if(output.equals(""))
+            output = "No Speech Detected";
+        return output;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         final Button button = findViewById(R.id.takePictureButton);
+        final Button speech = findViewById(R.id.speechButton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
+            }
+        });
+        speech.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dispatchRecordSpeechIntent();
             }
         });
     }
@@ -101,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
                 // Change to the text editor activity and pass the message
                 switchToTextEdit(result);
             }
+        }
+        else if (requestCode == REQUEST_SPEECH && resultCode==RESULT_OK)
+        {
+            String result = getStringFromRecordingIntent(data);
+            switchToTextEdit(result);
         }
     }
 
