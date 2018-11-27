@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     {
         Intent takeRecordingIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         takeRecordingIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        takeRecordingIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         try
         {
             startActivityForResult(takeRecordingIntent,REQUEST_SPEECH);
