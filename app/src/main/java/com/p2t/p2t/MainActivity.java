@@ -80,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(takeRecordingIntent,REQUEST_SPEECH);
         }
         catch(ActivityNotFoundException e)//if the phone doesnt support the built-in text-to-speech function
-        {}
+        {
+            Log.println(Log.ERROR, "Main", e.toString());
+        }
     }
 
     private String getStringFromRecordingIntent(Intent intent)
