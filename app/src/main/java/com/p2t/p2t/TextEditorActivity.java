@@ -2,6 +2,7 @@ package com.p2t.p2t;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +26,7 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_editor);
 
-        Button saveTextButton = findViewById(R.id.saveTextButton);
+        FloatingActionButton saveTextButton = findViewById(R.id.saveTextButton);
         saveTextButton.setOnClickListener(this);
 
         String text = getIntent().getStringExtra("text");

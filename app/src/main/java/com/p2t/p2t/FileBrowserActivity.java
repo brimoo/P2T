@@ -3,6 +3,7 @@ package com.p2t.p2t;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -28,7 +29,7 @@ public class FileBrowserActivity extends AppCompatActivity
         setContentView(R.layout.activity_file_browser);
 
         ListView fileView = findViewById(R.id.fileView);
-        Button newFileButton = findViewById(R.id.newFileButton);
+        FloatingActionButton newFileButton = findViewById(R.id.newFileButton);
 
         fileView.setAdapter(
                 new ArrayAdapter<>(
