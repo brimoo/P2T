@@ -86,11 +86,8 @@ public class MainActivity extends AppCompatActivity {
     private String getStringFromRecordingIntent(Intent intent)
     {
         String output = "";
-        for(String s : intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS))
-        {
-            output = output + s + " ";
-        }
-        if(output.equals(""))
+        output = intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0);
+        if(output == null)
             output = "No Speech Detected";
         return output;
     }

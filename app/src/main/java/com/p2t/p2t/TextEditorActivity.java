@@ -78,12 +78,17 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
         FileOutputStream stream = null;
         // Open file for writing
         try {
-            stream = openFileOutput(saveFile.getPath(), Context.MODE_PRIVATE);
+            stream = new FileOutputStream(saveFile);
         }
         catch (FileNotFoundException e) {
-            Toast.makeText(this, "Unable to save file.", Toast.LENGTH_SHORT).show();
-            Log.println(Log.ERROR, "TextEditor", e.toString());
-            return;
+            try {
+                stream = openFileOutput(saveFile.getPath(), Context.MODE_PRIVATE);
+            }
+            catch (FileNotFoundException f) {
+                Toast.makeText(this, "File not found.", Toast.LENGTH_SHORT).show();
+                Log.println(Log.ERROR, "TextEditor", f.toString());
+                return;
+            }
         }
 
         // Write text to file
@@ -91,7 +96,7 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
             stream.write(text.getBytes());
         }
         catch (IOException e) {
-            Toast.makeText(this, "Unable to save file.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Unable to write to file.", Toast.LENGTH_SHORT).show();
             Log.println(Log.ERROR, "TextEditor", e.toString());
             return;
         }
@@ -110,7 +115,7 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
             saveFile.createNewFile();
         }
         catch (IOException e) {
-            Toast.makeText(this, "Unable to save file.", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "Unable to save file.", Toast.LENGTH_SHORT).show();
             Log.println(Log.ERROR, "TextEditor", e.toString());
         }
     }
