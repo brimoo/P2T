@@ -79,12 +79,26 @@ public class PictureHandler implements Runnable {
         List<EntityAnnotation> texts = response.getResponses().get(0).getTextAnnotations();
         if (texts != null) {
             for (EntityAnnotation text : texts) {
-                if((String.format("%s", text.getDescription())).contains("null"))
+                // if((String.format("%s", text.getDescription())).contains("null"))
+                // {
+                //     continue;
+                // }
+                // str = str + (String.format("%s", text.getDescription()));
+                // str = str + " ";
+                if((String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription())).contains("null"))
                 {
                     continue;
                 }
-                str = str + (String.format("%s", text.getDescription()));
+                str = str + (String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription()));
                 str = str + " ";
+            }
+            String temp[] = str.split(":");
+            if(temp.legnth>1)
+            {
+                temp[0]="";
+                str = "";
+                for(String s : temp)
+                    str = str + s;
             }
 
         } else {
