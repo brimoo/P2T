@@ -21,6 +21,8 @@ import android.support.v4.content.FileProvider;
 import android.provider.MediaStore;
 import android.net.Uri;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.view.View;
@@ -114,6 +116,27 @@ public class MainActivity extends AppCompatActivity {
                 dispatchRecordSpeechIntent();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.home:
+                // We're already on the main activity
+                return true;
+            case R.id.files:
+                Intent files = new Intent(getApplicationContext(), FileBrowserActivity.class);
+                startActivity(files);
+                return true;
+        }
+        return(super.onOptionsItemSelected(item));
     }
 
     @Override

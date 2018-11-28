@@ -49,7 +49,7 @@ public class PictureHandler implements Runnable {
 
             HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
             Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
-            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("Not leaked"));
+            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("NOT_EVEN_LEAKED"));
             Vision vision = visionBuilder.build();
             Feature feature = new Feature();
             feature.setType("TEXT_DETECTION");
@@ -79,11 +79,11 @@ public class PictureHandler implements Runnable {
         List<EntityAnnotation> texts = response.getResponses().get(0).getTextAnnotations();
         if (texts != null) {
             for (EntityAnnotation text : texts) {
-                if((String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription())).contains("null"))
+                if((String.format("%s", text.getDescription())).contains("null"))
                 {
                     continue;
                 }
-                str = str + (String.format(Locale.getDefault(), "%s: %s", text.getLocale(), text.getDescription()));
+                str = str + (String.format("%s", text.getDescription()));
                 str = str + " ";
             }
 
