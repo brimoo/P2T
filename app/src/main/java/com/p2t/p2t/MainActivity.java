@@ -22,6 +22,7 @@ import android.provider.MediaStore;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.view.View;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
@@ -99,8 +100,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Button button = findViewById(R.id.takePictureButton);
-        final Button speech = findViewById(R.id.speechButton);
+        final ImageButton button = findViewById(R.id.takePictureButton);
+        final ImageButton speech = findViewById(R.id.speechButton);
+        button.setImageResource(R.drawable.ico_camera_small);
+        speech.setImageResource(R.drawable.ico_mic_small);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
