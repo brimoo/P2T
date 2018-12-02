@@ -22,10 +22,23 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TextEditorActivity extends AppCompatActivity implements View.OnClickListener{
+    private int theme;
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
 
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_text_editor);
 
         FloatingActionButton saveTextButton = findViewById(R.id.saveTextButton);

@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_SPEECH = 2;
     private Uri photoURI;
     private File photoFile;
+    private int theme;
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -96,10 +97,22 @@ public class MainActivity extends AppCompatActivity {
             output = "No Speech Detected";
         return output;
     }
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
 
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_main);
 
         final ImageButton button = findViewById(R.id.takePictureButton);
@@ -134,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.files:
                 Intent files = new Intent(getApplicationContext(), FileBrowserActivity.class);
                 startActivity(files);
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
                 return true;
         }
         return(super.onOptionsItemSelected(item));

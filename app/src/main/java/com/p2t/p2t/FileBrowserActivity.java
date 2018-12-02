@@ -23,11 +23,25 @@ import java.util.Arrays;
 
 
 public class FileBrowserActivity extends AppCompatActivity
-        implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
 
+        implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
+    private int theme;
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
+
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_file_browser);
 
         ListView fileView = findViewById(R.id.fileView);
@@ -40,7 +54,6 @@ public class FileBrowserActivity extends AppCompatActivity
                         Arrays.asList(getFilesDir().listFiles())
                 )
         );
-
         fileView.setOnItemClickListener(this);
         fileView.setOnItemLongClickListener(this);
         newFileButton.setOnClickListener(this);
@@ -62,6 +75,10 @@ public class FileBrowserActivity extends AppCompatActivity
                 return true;
             case R.id.files:
                 // We're already on the file viewer
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
                 return true;
         }
         return(super.onOptionsItemSelected(item));
