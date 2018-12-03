@@ -73,6 +73,10 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
                 Intent files = new Intent(getApplicationContext(), FileBrowserActivity.class);
                 startActivity(files);
                 return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
+                return true;
         }
         return(super.onOptionsItemSelected(item));
     }
