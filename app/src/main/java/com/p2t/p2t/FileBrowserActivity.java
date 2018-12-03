@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,11 +27,25 @@ import java.util.Arrays;
 
 
 public class FileBrowserActivity extends AppCompatActivity
-        implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
 
+        implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
+    private int theme;
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
+
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_file_browser);
 
         ListView fileView = findViewById(R.id.fileView);
@@ -42,11 +58,36 @@ public class FileBrowserActivity extends AppCompatActivity
                         Arrays.asList(getFilesDir().listFiles())
                 )
         );
-
         fileView.setOnItemClickListener(this);
         fileView.setOnItemLongClickListener(this);
         newFileButton.setOnClickListener(this);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.home:
+                Intent home = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(home);
+                return true;
+            case R.id.files:
+                // We're already on the file viewer
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return(super.onOptionsItemSelected(item));
+    }
+
 
     /**
      * Called when a file is short pressed.

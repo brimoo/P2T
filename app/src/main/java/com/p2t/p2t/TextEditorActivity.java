@@ -6,6 +6,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,10 +22,23 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TextEditorActivity extends AppCompatActivity implements View.OnClickListener{
+    private int theme;
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
 
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_text_editor);
 
         FloatingActionButton saveTextButton = findViewById(R.id.saveTextButton);
@@ -38,6 +53,32 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
         setText(text);
 
         saveTextButton.setOnClickListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.home:
+                Intent home = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(home);
+                return true;
+            case R.id.files:
+                Intent files = new Intent(getApplicationContext(), FileBrowserActivity.class);
+                startActivity(files);
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return(super.onOptionsItemSelected(item));
     }
 
     private void setText(String msg) {

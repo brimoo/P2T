@@ -21,7 +21,10 @@ import android.support.v4.content.FileProvider;
 import android.provider.MediaStore;
 import android.net.Uri;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.view.View;
 
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_SPEECH = 2;
     private Uri photoURI;
     private File photoFile;
+    private int theme;
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -80,7 +84,9 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(takeRecordingIntent,REQUEST_SPEECH);
         }
         catch(ActivityNotFoundException e)//if the phone doesnt support the built-in text-to-speech function
-        {}
+        {
+            Log.println(Log.ERROR, "Main", e.toString());
+        }
     }
 
     private String getStringFromRecordingIntent(Intent intent)
@@ -91,14 +97,28 @@ public class MainActivity extends AppCompatActivity {
             output = "No Speech Detected";
         return output;
     }
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(theme!=CurrentSettings.getMode()) {
+            theme = CurrentSettings.getMode();
+            setTheme(theme);
 
+            recreate();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = CurrentSettings.getMode();
+        setTheme(theme);
         setContentView(R.layout.activity_main);
 
-        final Button button = findViewById(R.id.takePictureButton);
-        final Button speech = findViewById(R.id.speechButton);
+        final ImageButton button = findViewById(R.id.takePictureButton);
+        final ImageButton speech = findViewById(R.id.speechButton);
+        button.setImageResource(R.drawable.ico_camera_small);
+        speech.setImageResource(R.drawable.ico_mic_small);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
@@ -109,6 +129,31 @@ public class MainActivity extends AppCompatActivity {
                 dispatchRecordSpeechIntent();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.home:
+                // We're already on the main activity
+                return true;
+            case R.id.files:
+                Intent files = new Intent(getApplicationContext(), FileBrowserActivity.class);
+                startActivity(files);
+                return true;
+            case R.id.settings:
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return(super.onOptionsItemSelected(item));
     }
 
     @Override
