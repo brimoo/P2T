@@ -1,5 +1,7 @@
 package com.p2t.p2t;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -73,27 +77,7 @@ public class FileBrowserActivity extends AppCompatActivity
         }
 
         // It's a folder, update the view
-        File folderContents[] = clickedFile.listFiles();
-
-        // Check if the folder is empty
-        if (folderContents == null || folderContents.length == 0) {
-            Toast.makeText(
-                    this,
-                    "The folder is empty.",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
-        // Change view to new folder
-        ListView fileView = (ListView) view;
-        fileView.setAdapter(
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        Arrays.asList(clickedFile.listFiles())
-                )
-        );
+        updateList(clickedFile);
     }
 
     /**
@@ -108,8 +92,66 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-        // TODO: Create options menu for rename/deletion/folder move
-        return false;
+        final CharSequence[] options = { "Rename", "Delete", "Move", "Cancel" };
+
+        final File clickedFile = (File)adapterView.getItemAtPosition(position);
+
+        // Don't know if this can happen
+        if (clickedFile == null) {
+            return true;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle("Select Option");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+
+                switch (which) {
+                    case 0: // Rename
+                        renameFile(clickedFile, "Test");
+                        AlertDialog.Builder alert = new AlertDialog.Builder(getParent());
+
+                        alert.setTitle("Title");
+                        alert.setMessage("Message");
+
+                        // Set an EditText view to get user input
+                        final EditText input = new EditText(getParent());
+                        alert.setView(input);
+
+                        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String value = input.getText().toString();
+                                renameFile(clickedFile, value);
+                            }
+                        });
+
+                        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // Canceled.
+                            }
+                        });
+
+                        alert.show();
+                        break;
+                    case 1: // Delete
+                        clickedFile.delete();
+                        break;
+                    case 2: // Move
+                        renameFile(clickedFile, "Test");
+                        break;
+                    default:
+                        dialog.cancel();
+                }
+                updateList(clickedFile);
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+        return true;
     }
 
     /**
@@ -165,5 +207,44 @@ public class FileBrowserActivity extends AppCompatActivity
         }
 
         return text.toString();
+    }
+
+    private void renameFile(File file, String newName) {
+        String newPath = file.getParent() + "/" + newName;
+        boolean success = file.renameTo(new File(newPath));
+        if (!success) {
+            Toast.makeText(this, "Rename failed", Toast.LENGTH_SHORT).show();
+            Log.println(Log.ERROR, "FileBrowser", "Rename failed for " + newPath.toString());
+        }
+
+        updateList(file);
+    }
+
+    private void deleteFile(File file) {
+        boolean success = file.delete();
+        if (!success) {
+            Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
+            Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath().toString());
+        }
+
+    }
+
+    private void updateList(File currentFile) {
+        File[] folderContents = currentFile.listFiles();
+
+        // Check if the folder is empty
+        while (folderContents == null || folderContents.length == 0) {
+            folderContents = currentFile.getParentFile().listFiles();
+        }
+
+        // Change view to new folder
+        ListView fileView = findViewById(R.id.fileView);;
+        fileView.setAdapter(
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        Arrays.asList(folderContents)
+                )
+        );
     }
 }
