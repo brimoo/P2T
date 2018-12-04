@@ -32,6 +32,7 @@ public class FileBrowserActivity extends AppCompatActivity
 
         implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
     private int theme;
+    private File currDir;
     @Override
     protected void onResume()
     {
@@ -47,6 +48,7 @@ public class FileBrowserActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         theme = CurrentSettings.getMode();
+        currDir = getFilesDir();
         setTheme(theme);
         setContentView(R.layout.activity_file_browser);
 
@@ -123,6 +125,7 @@ public class FileBrowserActivity extends AppCompatActivity
         }
 
         // It's a folder, update the view
+        currDir = clickedFile;
         updateList(clickedFile);
     }
 
@@ -187,8 +190,7 @@ public class FileBrowserActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         ListView fileView = findViewById(R.id.fileView);
-        File file = (File)fileView.getAdapter().getItem(0);
-        newFolderAlert(file.getParentFile());
+        newFolderAlert(currDir);
     }
 
     /**
@@ -283,21 +285,23 @@ public class FileBrowserActivity extends AppCompatActivity
         File[] folderContents = currentFile.listFiles();
 
         // Check if the folder is empty
-        while ((folderContents == null || folderContents.length == 0) && currentFile.getParentFile() != getFilesDir()) {
+        if((folderContents == null || folderContents.length == 0) && currentFile.getParentFile() != getFilesDir()) {
             folderContents = currentFile.getParentFile().listFiles();
         }
 
-        // Change view to new folder
-        List<File> adapterList = Arrays.asList(folderContents);
+        if(folderContents != null) {
+            // Change view to new folder
+            List<File> adapterList = Arrays.asList(folderContents);
 
-        ListView fileView = findViewById(R.id.fileView);
-        fileView.setAdapter(
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        adapterList
-                )
-        );
+            ListView fileView = findViewById(R.id.fileView);
+            fileView.setAdapter(
+                    new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_list_item_1,
+                            adapterList
+                    )
+            );
+        }
     }
 
     /**
