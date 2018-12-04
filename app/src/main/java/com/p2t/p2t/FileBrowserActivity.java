@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 public class FileBrowserActivity extends AppCompatActivity
@@ -52,11 +53,18 @@ public class FileBrowserActivity extends AppCompatActivity
         ListView fileView = findViewById(R.id.fileView);
         FloatingActionButton newFileButton = findViewById(R.id.newFileButton);
 
+        List<File> adapterList;
+        if (getFilesDir().listFiles().length == 0) {
+            adapterList = new ArrayList<>();
+        } else {
+            adapterList = Arrays.asList(getFilesDir().listFiles());
+        }
+
         fileView.setAdapter(
                 new ArrayAdapter<>(
                         this,
                         android.R.layout.simple_list_item_1,
-                        Arrays.asList(getFilesDir().listFiles())
+                        adapterList
                 )
         );
         fileView.setOnItemClickListener(this);
@@ -153,14 +161,13 @@ public class FileBrowserActivity extends AppCompatActivity
 
                 switch (which) {
                     case 0: // Rename
-//                        renameFile(clickedFile, "Test");
                         renameAlert(clickedFile);
                         break;
                     case 1: // Delete
                         deleteFile(clickedFile);
                         break;
                     case 2: // Move
-                        renameFile(clickedFile, "Test");
+                        moveAlert(clickedFile);
                         break;
                     default:
                         dialog.cancel();
@@ -183,8 +190,9 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public void onClick(View v) {
-        Intent i = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(i);
+        ListView fileView = findViewById(R.id.fileView);
+        File file = (File)fileView.getAdapter().getItem(0);
+        newFolderAlert(file.getParentFile());
     }
 
     /**
@@ -229,32 +237,46 @@ public class FileBrowserActivity extends AppCompatActivity
         return text.toString();
     }
 
+    /**
+     * Renames a passed file.
+     * @param file the file to rename.
+     * @param newName the new name for the file.
+     */
     private void renameFile(File file, String newName) {
         String newPath = file.getParent() + "/" + newName;
         boolean success = file.renameTo(new File(newPath));
         if (!success) {
             Toast.makeText(this, "Rename failed", Toast.LENGTH_SHORT).show();
-            Log.println(Log.ERROR, "FileBrowser", "Rename failed for " + newPath.toString());
+            Log.println(Log.ERROR, "FileBrowser", "Rename failed for " + newPath);
         }
 
         updateList(file);
     }
 
+    /**
+     * Delete a file. Will delete a single level of files inside of a directory as well.
+     * @param file the file to delete.
+     */
     private void deleteFile(File file) {
         boolean success;
 
         if (file.isDirectory()) {
             for(File subFile : file.listFiles()) {
-                subFile.delete();
+                success = subFile.delete();
+
+                if (!success) {
+                    Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
+                    Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
+                }
             }
         }
 
         success = file.delete();
         if (!success) {
             Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
-            Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath().toString());
+            Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
         }
-
+        updateList(file);
     }
 
     /**
@@ -270,12 +292,14 @@ public class FileBrowserActivity extends AppCompatActivity
         }
 
         // Change view to new folder
-        ListView fileView = findViewById(R.id.fileView);;
+        List<File> adapterList = Arrays.asList(folderContents);
+
+        ListView fileView = findViewById(R.id.fileView);
         fileView.setAdapter(
                 new ArrayAdapter<>(
                         this,
                         android.R.layout.simple_list_item_1,
-                        Arrays.asList(folderContents)
+                        adapterList
                 )
         );
     }
@@ -349,7 +373,35 @@ public class FileBrowserActivity extends AppCompatActivity
      * @param currentDir the directory to create the folder under.
      */
     private void newFolderAlert(final File currentDir) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
+        alert.setTitle("Title");
+        alert.setMessage("Message");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = input.getText().toString();
+                File file = new File(value);
+                boolean success = file.mkdir();
+
+                if (!success) {
+                    Toast.makeText(getParent(), "Delete failed", Toast.LENGTH_SHORT).show();
+                    Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
+                }
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
     }
 
     /**
