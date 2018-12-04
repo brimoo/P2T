@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -152,33 +153,11 @@ public class FileBrowserActivity extends AppCompatActivity
 
                 switch (which) {
                     case 0: // Rename
-                        renameFile(clickedFile, "Test");
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getParent());
-
-                        alert.setTitle("Title");
-                        alert.setMessage("Message");
-
-                        // Set an EditText view to get user input
-                        final EditText input = new EditText(getParent());
-                        alert.setView(input);
-
-                        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                String value = input.getText().toString();
-                                renameFile(clickedFile, value);
-                            }
-                        });
-
-                        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // Canceled.
-                            }
-                        });
-
-                        alert.show();
+//                        renameFile(clickedFile, "Test");
+                        renameAlert(clickedFile);
                         break;
                     case 1: // Delete
-                        clickedFile.delete();
+                        deleteFile(clickedFile);
                         break;
                     case 2: // Move
                         renameFile(clickedFile, "Test");
@@ -262,7 +241,15 @@ public class FileBrowserActivity extends AppCompatActivity
     }
 
     private void deleteFile(File file) {
-        boolean success = file.delete();
+        boolean success;
+
+        if (file.isDirectory()) {
+            for(File subFile : file.listFiles()) {
+                subFile.delete();
+            }
+        }
+
+        success = file.delete();
         if (!success) {
             Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
             Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath().toString());
@@ -270,6 +257,10 @@ public class FileBrowserActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Updates the list of files to the passed directory.
+     * @param currentFile the directory to change the view to.
+     */
     private void updateList(File currentFile) {
         File[] folderContents = currentFile.listFiles();
 
@@ -287,5 +278,98 @@ public class FileBrowserActivity extends AppCompatActivity
                         Arrays.asList(folderContents)
                 )
         );
+    }
+
+    /**
+     * Creates a dialog to rename a file.
+     * @param file the file to rename.
+     */
+    private void renameAlert(final File file) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Title");
+        alert.setMessage("Message");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = input.getText().toString();
+                renameFile(file, value);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
+    }
+
+    /**
+     * Creates a dialog to move a file to a new folder.
+     * @param file the file to move.
+     */
+    private void moveAlert(final File file) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Move to");
+        alert.setMessage("Message");
+
+        // Set an EditText view to get user input
+        final ListView folderList = new ListView(this);
+        alert.setView(folderList);
+        folderList.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1,
+                getFolderList(file.getParentFile())
+        ));
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String value = "--Test--";
+                renameFile(file, value);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
+    }
+
+    /**
+     * Prompts the user to enter the name for a new folder, then creates it.
+     * @param currentDir the directory to create the folder under.
+     */
+    private void newFolderAlert(final File currentDir) {
+
+    }
+
+    /**
+     * Retrieves a list of all folders inside the current directory
+     * @param currentDir the directory to check.
+     * @return a list of folders inside of the checked directory.
+     */
+    private ArrayList<File> getFolderList(File currentDir) {
+        if (!currentDir.isDirectory()) {
+            throw new InvalidParameterException();
+        }
+
+        ArrayList<File> ret = new ArrayList<>();
+
+        for (File file : currentDir.listFiles()) {
+            if (file.isDirectory()) {
+                ret.add(file);
+            }
+        }
+
+        return ret;
     }
 }
