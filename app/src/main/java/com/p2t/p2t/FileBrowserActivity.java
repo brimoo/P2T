@@ -53,20 +53,16 @@ public class FileBrowserActivity extends AppCompatActivity
         ListView fileView = findViewById(R.id.fileView);
         FloatingActionButton newFileButton = findViewById(R.id.newFileButton);
 
-        List<File> adapterList;
-        if (getFilesDir().listFiles().length == 0) {
-            adapterList = new ArrayList<>();
-        } else {
-            adapterList = Arrays.asList(getFilesDir().listFiles());
+        if (getFilesDir().listFiles().length != 0) {
+            fileView.setAdapter(
+                    new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_list_item_1,
+                            Arrays.asList(getFilesDir().listFiles())
+                    )
+            );
         }
 
-        fileView.setAdapter(
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_list_item_1,
-                        adapterList
-                )
-        );
         fileView.setOnItemClickListener(this);
         fileView.setOnItemLongClickListener(this);
         newFileButton.setOnClickListener(this);
@@ -287,7 +283,7 @@ public class FileBrowserActivity extends AppCompatActivity
         File[] folderContents = currentFile.listFiles();
 
         // Check if the folder is empty
-        while (folderContents == null || folderContents.length == 0) {
+        while ((folderContents == null || folderContents.length == 0) && currentFile.getParentFile() != getFilesDir()) {
             folderContents = currentFile.getParentFile().listFiles();
         }
 
