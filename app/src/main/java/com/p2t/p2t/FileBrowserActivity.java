@@ -85,7 +85,7 @@ public class FileBrowserActivity extends AppCompatActivity
                 startActivity(home);
                 return true;
             case R.id.files:
-                // We're already on the file viewer
+                recreate();
                 return true;
             case R.id.settings:
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -126,7 +126,7 @@ public class FileBrowserActivity extends AppCompatActivity
 
         // It's a folder, update the view
         currDir = clickedFile;
-        updateList(clickedFile);
+        updateList(currDir);
     }
 
     /**
@@ -189,7 +189,6 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public void onClick(View v) {
-        ListView fileView = findViewById(R.id.fileView);
         newFolderAlert(currDir);
     }
 
@@ -274,7 +273,7 @@ public class FileBrowserActivity extends AppCompatActivity
             Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
             Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
         }
-        updateList(file);
+        updateList(currDir);
     }
 
     /**
@@ -283,11 +282,6 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     private void updateList(File currentFile) {
         File[] folderContents = currentFile.listFiles();
-
-        // Check if the folder is empty
-        if((folderContents == null || folderContents.length == 0) && currentFile.getParentFile() != getFilesDir()) {
-            folderContents = currentFile.getParentFile().listFiles();
-        }
 
         if(folderContents != null) {
             // Change view to new folder
@@ -342,7 +336,7 @@ public class FileBrowserActivity extends AppCompatActivity
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         alert.setTitle("Move to");
-        alert.setMessage("Message");
+        // alert.setMessage("Message");
 
         // Set an EditText view to get user input
         final ListView folderList = new ListView(this);
@@ -385,13 +379,14 @@ public class FileBrowserActivity extends AppCompatActivity
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String value = input.getText().toString();
-                File file = new File(value);
+                File file = new File(currDir, value);
                 boolean success = file.mkdir();
 
                 if (!success) {
-                    Toast.makeText(getParent(), "Delete failed", Toast.LENGTH_SHORT).show();
-                    Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
+                    // Toast.makeText(getParent(), "Folder creation failed", Toast.LENGTH_SHORT).show();
+                    Log.println(Log.ERROR, "FileBrowser", "Folder create failed for " + file.getPath());
                 }
+                updateList(currDir);
             }
         });
 
