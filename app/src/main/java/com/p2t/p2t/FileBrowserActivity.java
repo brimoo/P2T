@@ -432,7 +432,7 @@ public class FileBrowserActivity extends AppCompatActivity
     private void newFolderAlert() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-        alert.setTitle("Title");
+        alert.setTitle("Rename");
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
