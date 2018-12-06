@@ -58,7 +58,9 @@ public class FileBrowserActivity extends AppCompatActivity
         FloatingActionButton newFileButton = findViewById(R.id.newFileButton);
 
         ArrayList<File> adapterList = new ArrayList<>();
+
         for(File f : currDir.listFiles()) {
+            // Filter our rList files since they cause problems on some devices
             if(!(f.getName().contains("rList")))
                 adapterList.add(f);
         }
@@ -72,6 +74,25 @@ public class FileBrowserActivity extends AppCompatActivity
                     )
             );
         }
+
+        // Add back navigation button and its on click listener
+        FloatingActionButton backNavButton = findViewById(R.id.backNavButton);
+        backNavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Extremely hacky solution to detect if we are in root directory
+                // if(currDir != getFilesDir()) doesn't always work
+                boolean isRoot = false;
+                for(File f : currDir.getParentFile().listFiles()) {
+                    if(f.getName().contains("code_cache"))
+                        isRoot = true;
+                }
+                if(!isRoot) {
+                    currDir = currDir.getParentFile();
+                    updateList();
+                }
+            }
+        });
 
         fileView.setOnItemClickListener(this);
         fileView.setOnItemLongClickListener(this);
