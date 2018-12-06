@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity{
     private int theme;
@@ -28,7 +29,8 @@ public class SettingsActivity extends AppCompatActivity{
         theme = CurrentSettings.getMode();
         setTheme(theme);
         setContentView(R.layout.activity_settings);
-
+        TextView text =  (TextView)findViewById(R.id.textView);
+        text.setText("Dark Mode");
         final Switch modeSwitch = findViewById(R.id.modeSwitch);
         modeSwitch.setChecked(CurrentSettings.getModeBool());
         modeSwitch.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener(){
