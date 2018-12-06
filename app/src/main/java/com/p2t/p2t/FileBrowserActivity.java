@@ -61,7 +61,7 @@ public class FileBrowserActivity extends AppCompatActivity
 
         for(File f : currDir.listFiles()) {
             // Filter our rList files since they cause problems on some devices
-            if(!(f.getName().contains("rList")))
+            if(!(f.getName().contains("rList-")))
                 adapterList.add(f);
         }
 
@@ -80,14 +80,7 @@ public class FileBrowserActivity extends AppCompatActivity
         backNavButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Extremely hacky solution to detect if we are in root directory
-                // if(currDir != getFilesDir()) doesn't always work
-                boolean isRoot = false;
-                for(File f : currDir.getParentFile().listFiles()) {
-                    if(f.getName().contains("code_cache"))
-                        isRoot = true;
-                }
-                if(!isRoot) {
+                if(!currDir.equals(getFilesDir())) {
                     currDir = currDir.getParentFile();
                     updateList();
                 }
