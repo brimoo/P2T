@@ -33,6 +33,7 @@ public class FileBrowserActivity extends AppCompatActivity
         implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
     private int theme;
     private File currDir;
+
     @Override
     protected void onResume()
     {
@@ -44,6 +45,7 @@ public class FileBrowserActivity extends AppCompatActivity
             recreate();
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,12 +57,18 @@ public class FileBrowserActivity extends AppCompatActivity
         ListView fileView = findViewById(R.id.fileView);
         FloatingActionButton newFileButton = findViewById(R.id.newFileButton);
 
+        ArrayList<File> adapterList = new ArrayList<>();
+        for(File f : currDir.listFiles()) {
+            if(!(f.getName().contains("rList")))
+                adapterList.add(f);
+        }
+
         if (getFilesDir().listFiles().length != 0) {
             fileView.setAdapter(
                     new ArrayAdapter<>(
                             this,
                             android.R.layout.simple_list_item_1,
-                            Arrays.asList(getFilesDir().listFiles())
+                            adapterList
                     )
             );
         }
@@ -126,7 +134,7 @@ public class FileBrowserActivity extends AppCompatActivity
 
         // It's a folder, update the view
         currDir = clickedFile;
-        updateList(currDir);
+        updateList();
     }
 
     /**
@@ -171,7 +179,7 @@ public class FileBrowserActivity extends AppCompatActivity
                     default:
                         dialog.cancel();
                 }
-                updateList(clickedFile);
+                updateList();
             }
         });
         AlertDialog alert = builder.create();
@@ -189,7 +197,7 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public void onClick(View v) {
-        newFolderAlert(currDir);
+        newFolderAlert();
     }
 
     /**
@@ -247,7 +255,7 @@ public class FileBrowserActivity extends AppCompatActivity
             Log.println(Log.ERROR, "FileBrowser", "Rename failed for " + newPath);
         }
 
-        updateList(file);
+        updateList();
     }
 
     /**
@@ -273,19 +281,22 @@ public class FileBrowserActivity extends AppCompatActivity
             Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
             Log.println(Log.ERROR, "FileBrowser", "Delete failed for " + file.getPath());
         }
-        updateList(currDir);
+        updateList();
     }
 
     /**
      * Updates the list of files to the passed directory.
-     * @param currentFile the directory to change the view to.
      */
-    private void updateList(File currentFile) {
-        File[] folderContents = currentFile.listFiles();
+    private void updateList() {
+        File[] folderContents = currDir.listFiles();
 
         if(folderContents != null) {
-            // Change view to new folder
-            List<File> adapterList = Arrays.asList(folderContents);
+            ArrayList<File> adapterList = new ArrayList<>();
+            // Filter our rList files since they cause problems on some devices
+            for(File f : currDir.listFiles()) {
+                if(!(f.getName().contains("rList")))
+                    adapterList.add(f);
+            }
 
             ListView fileView = findViewById(R.id.fileView);
             fileView.setAdapter(
@@ -306,7 +317,6 @@ public class FileBrowserActivity extends AppCompatActivity
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         alert.setTitle("Title");
-        alert.setMessage("Message");
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
@@ -336,14 +346,13 @@ public class FileBrowserActivity extends AppCompatActivity
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         alert.setTitle("Move to");
-        // alert.setMessage("Message");
 
         // Set an EditText view to get user input
         final ListView folderList = new ListView(this);
         alert.setView(folderList);
         folderList.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1,
-                getFolderList(file.getParentFile())
+                getFolderList()
         ));
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -364,13 +373,11 @@ public class FileBrowserActivity extends AppCompatActivity
 
     /**
      * Prompts the user to enter the name for a new folder, then creates it.
-     * @param currentDir the directory to create the folder under.
      */
-    private void newFolderAlert(final File currentDir) {
+    private void newFolderAlert() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         alert.setTitle("Title");
-        alert.setMessage("Message");
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
@@ -386,7 +393,7 @@ public class FileBrowserActivity extends AppCompatActivity
                     // Toast.makeText(getParent(), "Folder creation failed", Toast.LENGTH_SHORT).show();
                     Log.println(Log.ERROR, "FileBrowser", "Folder create failed for " + file.getPath());
                 }
-                updateList(currDir);
+                updateList();
             }
         });
 
@@ -401,17 +408,16 @@ public class FileBrowserActivity extends AppCompatActivity
 
     /**
      * Retrieves a list of all folders inside the current directory
-     * @param currentDir the directory to check.
      * @return a list of folders inside of the checked directory.
      */
-    private ArrayList<File> getFolderList(File currentDir) {
-        if (!currentDir.isDirectory()) {
+    private ArrayList<File> getFolderList() {
+        if (!currDir.isDirectory()) {
             throw new InvalidParameterException();
         }
 
         ArrayList<File> ret = new ArrayList<>();
 
-        for (File file : currentDir.listFiles()) {
+        for (File file : currDir.listFiles()) {
             if (file.isDirectory()) {
                 ret.add(file);
             }
