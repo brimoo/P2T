@@ -308,7 +308,7 @@ public class FileBrowserActivity extends AppCompatActivity
             ArrayList<File> adapterList = new ArrayList<>();
             // Filter our rList files since they cause problems on some devices
             for(File f : currDir.listFiles()) {
-                if(!(f.getName().contains("rList")))
+                if(!(f.getName().contains("rList-")))
                     adapterList.add(f);
             }
 

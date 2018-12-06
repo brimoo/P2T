@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException;
 import android.graphics.Picture;
 import android.os.AsyncTask;
 import android.speech.RecognizerIntent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import java.io.IOException;
 import java.util.Date;
@@ -115,11 +116,9 @@ public class MainActivity extends AppCompatActivity {
         setTheme(theme);
         setContentView(R.layout.activity_main);
 
-        final ImageButton button = findViewById(R.id.takePictureButton);
-        final ImageButton speech = findViewById(R.id.speechButton);
-        button.setImageResource(R.drawable.ico_camera_small);
-        speech.setImageResource(R.drawable.ico_mic_small);
-        button.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton camera = findViewById(R.id.cameraButton);
+        final FloatingActionButton speech = findViewById(R.id.micButton);
+        camera.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
             }
