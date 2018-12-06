@@ -1,6 +1,7 @@
 package com.p2t.p2t;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class FileBrowserActivity extends AppCompatActivity
         implements ListView.OnItemClickListener, ListView.OnItemLongClickListener, View.OnClickListener {
     private int theme;
     private File currDir;
+    private ArrayList<File> adapterList = new ArrayList<>();
 
     @Override
     protected void onResume()
@@ -64,13 +66,13 @@ public class FileBrowserActivity extends AppCompatActivity
             if(!(f.getName().contains("rList-")))
                 adapterList.add(f);
         }
-
+        this.adapterList = adapterList;
         if (getFilesDir().listFiles().length != 0) {
             fileView.setAdapter(
                     new ArrayAdapter<>(
                             this,
                             android.R.layout.simple_list_item_1,
-                            adapterList
+                            getStringNameListFromList(adapterList)
                     )
             );
         }
@@ -129,7 +131,7 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        File clickedFile = (File)adapterView.getItemAtPosition(position);
+        File clickedFile = this.adapterList.get(position);
 
         // Don't know if this can happen
         if (clickedFile == null) {
@@ -165,7 +167,7 @@ public class FileBrowserActivity extends AppCompatActivity
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
         final CharSequence[] options = { "Rename", "Delete", "Move", "Cancel" };
 
-        final File clickedFile = (File)adapterView.getItemAtPosition(position);
+        final File clickedFile = this.adapterList.get(position);
 
         // Don't know if this can happen
         if (clickedFile == null) {
@@ -272,6 +274,17 @@ public class FileBrowserActivity extends AppCompatActivity
         updateList();
     }
 
+    private void movePath(File file, String newFolder) {
+        String newPath = newFolder + "/" + file.getName();
+        boolean success = file.renameTo(new File(newPath));
+        if (!success) {
+            Toast.makeText(this, "Rename failed", Toast.LENGTH_SHORT).show();
+            Log.println(Log.ERROR, "FileBrowser", "Rename failed for " + newPath);
+        }
+
+        updateList();
+    }
+
     /**
      * Delete a file. Will delete a single level of files inside of a directory as well.
      * @param file the file to delete.
@@ -311,13 +324,13 @@ public class FileBrowserActivity extends AppCompatActivity
                 if(!(f.getName().contains("rList-")))
                     adapterList.add(f);
             }
-
+            this.adapterList = adapterList;
             ListView fileView = findViewById(R.id.fileView);
             fileView.setAdapter(
                     new ArrayAdapter<>(
                             this,
                             android.R.layout.simple_list_item_1,
-                            adapterList
+                            getStringNameListFromList(adapterList)
                     )
             );
         }
@@ -361,18 +374,15 @@ public class FileBrowserActivity extends AppCompatActivity
 
         alert.setTitle("Move to");
 
-        // Set an EditText view to get user input
-        final ListView folderList = new ListView(this);
-        alert.setView(folderList);
-        folderList.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1,
-                getFolderList()
-        ));
-
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                String value = "--Test--";
-                renameFile(file, value);
+        final ArrayList<File> folderList = getFolderList();
+        final String[] stringFolderList= getStringPathListFromList(folderList).toArray(new String[folderList.size()]);
+        final String[] stringFolderNameList = getStringNameListFromList(folderList).toArray(new String[folderList.size()]);
+        alert.setItems(stringFolderNameList, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                movePath(file, stringFolderList[which]);
             }
         });
 
@@ -438,5 +448,24 @@ public class FileBrowserActivity extends AppCompatActivity
         }
 
         return ret;
+    }
+
+    private ArrayList<String> getStringNameListFromList(ArrayList<File> files)
+    {
+        ArrayList<String> strings = new ArrayList<>();
+        for(File f : files)
+        {
+            strings.add(f.getName());
+        }
+        return strings;
+    }
+    private ArrayList<String> getStringPathListFromList(ArrayList<File> files)
+    {
+        ArrayList<String> strings = new ArrayList<>();
+        for(File f : files)
+        {
+            strings.add(f.getPath());
+        }
+        return strings;
     }
 }
