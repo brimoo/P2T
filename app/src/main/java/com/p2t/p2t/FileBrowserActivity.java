@@ -382,14 +382,20 @@ public class FileBrowserActivity extends AppCompatActivity
         alert.setTitle("Move to");
 
         final ArrayList<File> folderList = getFolderList();
-        final String[] stringFolderList= getStringPathListFromList(folderList).toArray(new String[folderList.size()]);
-        final String[] stringFolderNameList = getStringNameListFromList(folderList).toArray(new String[folderList.size()]);
+        final String[] stringFolderList= getStringPathListFromList(folderList).toArray(new String[folderList.size()+1]);
+        final String[] stringFolderNameList = getStringNameListFromList(folderList).toArray(new String[folderList.size()+1]);
+        stringFolderNameList[stringFolderList.length-1]="../";
         alert.setItems(stringFolderNameList, new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                movePath(file, stringFolderList[which]);
+                if(which<stringFolderList.length-1)
+                    movePath(file, stringFolderList[which]);
+                else if(!currDir.equals(getFilesDir()))
+                    movePath(file,file.getParentFile().getParentFile().getPath());
+                else
+                    toastString("File is in the top directory.");
             }
         });
 
@@ -492,5 +498,10 @@ public class FileBrowserActivity extends AppCompatActivity
             strings.add(f.getPath());
         }
         return strings;
+    }
+
+    private void toastString(String s)
+    {
+        Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
     }
 }
