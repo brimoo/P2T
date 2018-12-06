@@ -44,9 +44,7 @@ public class PictureHandler implements Runnable {
 
     private BatchAnnotateImagesResponse getRequest(Image image) {
         try
-
         {
-
             HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
             Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
             visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("No_Leak"));
