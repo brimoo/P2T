@@ -165,7 +165,7 @@ public class FileBrowserActivity extends AppCompatActivity
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-        final CharSequence[] options = { "Rename", "Delete", "Move", "Cancel" };
+        final CharSequence[] options = { "Rename", "Delete", "Move", "Share", "Cancel" };
 
         final File clickedFile = this.adapterList.get(position);
 
@@ -191,6 +191,9 @@ public class FileBrowserActivity extends AppCompatActivity
                         break;
                     case 2: // Move
                         moveAlert(clickedFile);
+                        break;
+                    case 3:
+                        shareAlert(clickedFile);
                         break;
                     default:
                         dialog.cancel();
@@ -397,6 +400,24 @@ public class FileBrowserActivity extends AppCompatActivity
         });
 
         alert.show();
+    }
+
+    private void shareAlert(final File file)
+    {
+        if(file.isDirectory())
+        {
+            Toast.makeText(
+                    this,
+                    "Unable to share Folders.",
+                    Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getTextFromFile(file));
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
     }
 
     /**
