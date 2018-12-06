@@ -100,7 +100,7 @@ public class TextEditorActivity extends AppCompatActivity implements View.OnClic
         if (getIntent().getStringExtra("path") != null) {
             path = getIntent().getStringExtra("path");
         } else {
-            path = "new_" + timestamp;
+            path = "new_" + timestamp + ".txt";
         }
 
         saveTextToFile(editText.getText().toString(), new File(path));

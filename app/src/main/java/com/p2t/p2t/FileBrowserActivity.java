@@ -352,6 +352,10 @@ public class FileBrowserActivity extends AppCompatActivity
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String value = input.getText().toString();
+                if(!file.isDirectory()&&!value.contains(".txt"))
+                {
+                    value = value + ".txt";
+                }
                 renameFile(file, value);
             }
         });
