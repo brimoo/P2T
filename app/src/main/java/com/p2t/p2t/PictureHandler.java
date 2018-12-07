@@ -47,7 +47,7 @@ public class PictureHandler implements Runnable {
         {
             HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
             Vision.Builder visionBuilder = new Vision.Builder(httpTransport, new AndroidJsonFactory(), null);
-            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("No_Leak"));
+            visionBuilder.setVisionRequestInitializer(new VisionRequestInitializer("No_leak"));
             Vision vision = visionBuilder.build();
             Feature feature = new Feature();
             feature.setType("TEXT_DETECTION");
