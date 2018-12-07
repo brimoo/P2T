@@ -19,6 +19,9 @@ public class User {
     @ColumnInfo(name = "root_directory_id")
     private int rootDirectoryID;
 
+    @ColumnInfo(name = "dark_mode")
+    private boolean darkMode;
+
     public int getUid() {
         return uid;
     }
@@ -44,5 +47,14 @@ public class User {
     }
 
     public int getRootDirectoryID() {return rootDirectoryID;}
+
     public void setRootDirectoryID(int rootDirectoryID) {this.rootDirectoryID = rootDirectoryID;}
+
+    public boolean isDarkMode() {
+        return darkMode;
+    }
+
+    public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
+    }
 }

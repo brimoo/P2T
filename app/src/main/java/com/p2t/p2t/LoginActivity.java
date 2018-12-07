@@ -3,6 +3,7 @@ package com.p2t.p2t;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -48,13 +49,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
@@ -65,6 +59,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private int theme;
+
+    // Database reference
+    private AppDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +95,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        database = AppDatabase.getAppDatabase(getApplicationContext());
     }
 
     @Override
@@ -360,15 +359,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
+            List<User> users = database.userDAO().getAll();
+
+            for (User user : users) {
+                if (mEmail.equalsIgnoreCase(user.getUsername())) {
                     // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                    if (mPassword.equals(user.getPassword())) {
+                        CurrentSettings.setCurrentUser(user.getUid());
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
 
-            // TODO: register the new account here.
+            // Register account
+            User newUser = new User();
+            newUser.setUsername(mEmail.toLowerCase());
+            newUser.setPassword(mPassword);
+            database.userDAO().insertAll(newUser);
+            CurrentSettings.setCurrentUser(newUser.getUid());
             return true;
         }
 

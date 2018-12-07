@@ -1,5 +1,6 @@
 package com.p2t.p2t;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,10 @@ import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity{
     private int theme;
+
+    private static final String DATABASE_NAME = "user_db";
+    private AppDatabase database;
+
     @Override
     protected void onResume()
     {
@@ -52,6 +57,14 @@ public class SettingsActivity extends AppCompatActivity{
             }
         });
 
+        // Sync current theme state to database if a user is logged in
+        int currentUserID = CurrentSettings.getCurrentUser();
+        if (currentUserID != -1) {
+            database = AppDatabase.getAppDatabase(getApplicationContext());
+
+            User currentUser = database.userDAO().getUserByID(currentUserID);
+            currentUser.setDarkMode(CurrentSettings.getModeBool());
+        }
     }
 
     @Override
