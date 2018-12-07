@@ -377,6 +377,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             User newUser = new User();
             newUser.setUsername(mEmail.toLowerCase());
             newUser.setPassword(mPassword);
+            newUser.setDarkMode(CurrentSettings.getModeBool());
             database.userDAO().insertAll(newUser);
             CurrentSettings.setCurrentUser(newUser.getUid());
             return true;

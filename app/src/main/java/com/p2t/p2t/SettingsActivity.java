@@ -58,13 +58,16 @@ public class SettingsActivity extends AppCompatActivity{
         });
 
         // Sync current theme state to database if a user is logged in
-        int currentUserID = CurrentSettings.getCurrentUser();
-        if (currentUserID != -1) {
-            database = AppDatabase.getAppDatabase(getApplicationContext());
-
-            User currentUser = database.userDAO().getUserByID(currentUserID);
-            currentUser.setDarkMode(CurrentSettings.getModeBool());
-        }
+//        int currentUserID = CurrentSettings.getCurrentUser();
+//        if (currentUserID != -1) {
+//            database = AppDatabase.getAppDatabase(getApplicationContext());
+//
+//            User currentUser = database.userDAO().getUserByID(currentUserID);
+//            modeSwitch.setChecked(currentUser.isDarkMode());
+//            CurrentSettings.setMode(currentUser.isDarkMode());
+//            setTheme(CurrentSettings.getMode());
+//            CurrentSettings.syncMode(this);
+//        }
     }
 
     @Override
